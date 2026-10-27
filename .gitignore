@@ -1,0 +1,24 @@
+# Node.js dependencies
+node_modules/
+
+# AWS SAM build output
+.aws-sam/
+
+# Python generated files
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Environment and secret files
+.env
+.env.*
+
+# Temporary installation files
+aws-sam-cli-linux-*.zip
+sam-installation/
+
+# Operating system files
+.DS_Store
+Thumbs.db

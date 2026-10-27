@@ -1,0 +1,12 @@
+{
+  "name": "cloud-project2",
+  "version": "1.0.0",
+  "description": "My Cloud Computing Project 2",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "redis": "^5.12.1"
+  }
+}
