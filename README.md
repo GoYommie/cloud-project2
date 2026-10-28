@@ -34,11 +34,10 @@ Docker must be running before starting the containers or invoking the Lambda fun
 ### 1. Clone the repository
 
 ```bash
-git clone <REPOSITORY_URL>
+git clone https://github.com/GoYommie/cloud-project2.git
 cd cloud-project2
 ```
 
-Replace `<REPOSITORY_URL>` with the actual Git repository URL.
 
 ### 2. Build and start the services
 
@@ -52,7 +51,7 @@ Docker Compose builds the Node.js application image and starts the Redis and web
 
 Visit:
 
-http://localhost:3000
+http://localhost:8080
 
 Refresh the page to see the visit counter increase.
 
@@ -127,7 +126,7 @@ The application runs as the non-root `node` user.
 Docker Compose manages two services:
 
 - **cache:** Runs Redis and includes a health check using `redis-cli ping`.
-- **web:** Builds the Node.js application, publishes port 3000, and waits for Redis to become healthy.
+- **web:** Builds the Node.js application, maps host port 8080 to container port 3000, and waits for Redis to become healthy.
 
 The Node.js application connects to Redis using the Compose service name `cache`.
 
