@@ -1,3 +1,4 @@
+
 # Cloud Project 2 — Image and Service Rationale
 
 ## Overview
@@ -10,7 +11,7 @@ This project uses Docker to package a Node.js web application, Docker Compose to
 
 **Redis 7 Alpine:** I selected `redis:7-alpine` because Redis provides a simple key-value store that can be used to demonstrate communication between containers. The application uses Redis to increment and retrieve a page-visit counter. My locally measured Redis image size was approximately **57.3 MB**.
 
-**Application image:** My final `cloud-project2-web:latest` image measured approximately **251.9 MB**. It contains the Node.js runtime, production dependencies, and application code. These measurements were obtained using `docker image inspect` and represent local image sizes.
+**Application image:** My final `cloud-project2-web:latest` image measured approximately **251.9 MB**. It contains the Node.js runtime, production dependencies, and application code. These measurements were obtained using Docker image inspection and represent local image sizes.
 
 ## Multi-Stage Dockerfile
 
@@ -20,11 +21,28 @@ This separates dependency installation from the final runtime configuration and 
 
 Because both stages use the same Node.js Alpine base image, the multi-stage design does not automatically guarantee a smaller image than every possible single-stage alternative. Its main benefits here are a clearer build process and control over the files included in the runtime image.
 
+### Single-Stage vs Multi-Stage Image Comparison
+
+I created `Dockerfile.single` to compare a single-stage build with the existing multi-stage Dockerfile. Both versions use Node.js 22 Alpine and install the same production dependencies.
+
+Using `docker image ls`, I measured the following disk usage:
+
+| Build Type | Image | Disk Usage |
+|---|---|---|
+| Single-stage | `cloud-project2:single` | 256 MB |
+| Multi-stage | `cloud-project2-web:latest` | 252 MB |
+
+The multi-stage image was approximately **4 MB smaller**, representing a reduction of about **1.6%**.
+
+The reduction is relatively small because both builds use the same Node.js Alpine runtime. The multi-stage approach still separates dependency installation from the final runtime stage and provides better control over which files are included.
+
 ## Docker Compose Service Design
 
 Docker Compose manages two services: `web` and `cache`.
 
-The `web` service builds the Node.js application image and publishes container port 3000 to the host. The `cache` service runs Redis on the internal Compose network.
+The `web` service builds the Node.js application image and maps host port **8080** to container port **3000**, allowing the website to be accessed at `http://localhost:8080`.
+
+The `cache` service runs Redis on the internal Compose network.
 
 The application connects to Redis using the hostname `cache`, which is resolved through Docker Compose service discovery.
 
@@ -43,6 +61,23 @@ This demonstrates a serverless execution model alongside the continuously runnin
 I verified that both Compose services started successfully, Redis passed its health check, and the webpage visit counter increased when the page was refreshed.
 
 I also inspected container logs, status, IP address, CPU usage, and memory usage. I tested stopping and restarting the web container while Redis remained healthy, and confirmed that the web application reconnected successfully.
+
+### Fresh-Clone Verification
+
+I tested the project by cloning the `project2-review` branch from GitHub into a separate directory.
+
+From the freshly cloned repository, I successfully:
+
+- Built the web application using `docker compose up -d --build`.
+- Started the `web` and `cache` services.
+- Confirmed that Redis became healthy.
+- Received an HTTP `200 OK` response from `http://localhost:8080`.
+- Built the Lambda function using `sam build`.
+- Invoked the Lambda function using `sam local invoke HelloWorldFunction`.
+- Received a successful Lambda response with status code `200`.
+- Stopped and removed the test containers using `docker compose down`.
+
+These tests confirmed that the application and Lambda function could be built and run locally using the files downloaded from GitHub.
 
 ## References
 
